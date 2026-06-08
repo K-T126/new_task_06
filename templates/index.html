@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MNIST Predictor</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        #canvas { border: 1px solid black; cursor: crosshair; }
+        .controls { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>MNIST Hand-drawn Digit Recognition</h1>
+    <canvas id="canvas" width="280" height="280"></canvas>
+    <div class="controls">
+        <button onclick="clearCanvas()">Clear</button>
+        <button onclick="predict()">Predict</button>
+    </div>
+    <h2 id="result"></h2>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 15;
+        ctx.lineCap = "round";
+
+        canvas.onmousedown = () => drawing = true;
+        canvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
+        canvas.onmousemove = (e) => {
+            if (!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        };
+
+        function clearCanvas() {
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('result').innerText = "";
+        }
+
+        async function predict() {
+            const dataUrl = canvas.toDataURL('image/png');
+            const blob = await (await fetch(dataUrl)).blob();
+            const formData = new FormData();
+            formData.append('file', blob, 'digit.png');
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            document.getElementById('result').innerText = "Prediction: " + result.prediction;
+        }
+    </script>
+</body>
+</html>
