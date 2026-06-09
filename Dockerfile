@@ -1,22 +1,24 @@
-# Use official Python runtime as a parent image
-FROM python:3.9-slim
+# PyTorchがプリインストールされた軽量なランタイムイメージを使用
+FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
 
-# Set environment variables
+# 環境変数の設定
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Set work directory
+# 作業ディレクトリの設定
 WORKDIR /app
 
-# Install dependencies
+# 依存関係のインストール
+# PyTorch以外のライブラリのみをインストールするようにしてビルドを高速化
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir fastapi uvicorn python-multipart jinja2 pytorch-lightning
 
-# Copy project
+# プロジェクトファイルのコピー
+# .dockerignoreにより、不要なデータやキャッシュは除外される
 COPY . /app/
 
-# Expose port (Cloud Run defaults to 8080)
+# ポートの公開
 EXPOSE 8080
 
-# Command to run the application
+# アプリケーションの実行
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
