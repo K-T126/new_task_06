@@ -19,5 +19,4 @@ COPY . /app/
 EXPOSE 8080
 
 # Command to run the application
-# We use gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]

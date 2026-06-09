@@ -1,7 +1,9 @@
 torch
 torchvision
 pytorch-lightning
-flask
+fastapi
+uvicorn
+python-multipart
+jinja2
 numpy
 Pillow
-gunicorn

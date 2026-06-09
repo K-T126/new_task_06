@@ -1,11 +1,14 @@
 import io
 import torch
-from flask import Flask, request, jsonify, render_template
+from fastapi import FastAPI, UploadFile, File, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from PIL import Image
 from torchvision import transforms
 from model import MNISTResNet18
 
-app = Flask(__name__)
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
 # Load model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -25,17 +28,13 @@ transform = transforms.Compose([
     transforms.Normalize((0.1307,), (0.3081,))
 ])
 
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('index.html')
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    if 'file' not in request.files:
-        return jsonify({'error': 'no file'}), 400
-    
-    file = request.files['file']
-    img_bytes = file.read()
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    img_bytes = await file.read()
     image = Image.open(io.BytesIO(img_bytes))
     
     tensor = transform(image).unsqueeze(0).to(device)
@@ -44,7 +43,8 @@ def predict():
         outputs = model(tensor)
         prediction = torch.argmax(outputs, dim=1).item()
         
-    return jsonify({'prediction': prediction})
+    return {"prediction": prediction}
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)
