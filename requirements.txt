@@ -1,9 +1,6 @@
-torch
-torchvision
 pytorch-lightning
 fastapi
 uvicorn
 python-multipart
 jinja2
-numpy
-Pillow
+# Note: torch, torchvision, numpy, and Pillow are provided by the base image
