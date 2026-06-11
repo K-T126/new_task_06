@@ -1,11 +1,11 @@
-# MNIST ResNet18 Flask Service
+# MNIST ResNet18 FastAPI Service
 
-This project implements an MNIST digit classification service using PyTorch Lightning (ResNet18) and Flask.
+This project implements an MNIST digit classification service using PyTorch Lightning (ResNet18) and FastAPI.
 
 ## Structure
 - `model.py`: ResNet18 model definition adapted for MNIST.
 - `train.py`: Training script with 60/20/20 data split.
-- `app.py`: Flask application for serving predictions.
+- `app.py`: FastAPI application for serving predictions.
 - `templates/index.html`: Web interface for drawing digits.
 - `Dockerfile`: Container configuration for deployment.
 
@@ -18,7 +18,7 @@ pip install -r requirements.txt
 python train.py
 ```
 
-### 2. Running the Flask App (Local)
+### 2. Running the FastAPI App (Local)
 ```bash
 python app.py
 ```
