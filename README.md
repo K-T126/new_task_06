@@ -1,45 +1,45 @@
-# MNIST ResNet18 FastAPI Service
+# MNIST ResNet18 FastAPI サービス
 
-This project implements an MNIST digit classification service using PyTorch Lightning (ResNet18) and FastAPI.
+このプロジェクトは、PyTorch Lightning (ResNet18) と FastAPI を使用して、MNIST 数字分類サービスを実装したものです。
 
-## Structure
-- `model.py`: ResNet18 model definition adapted for MNIST.
-- `train.py`: Training script with 60/20/20 data split.
-- `app.py`: FastAPI application for serving predictions.
-- `templates/index.html`: Web interface for drawing digits.
-- `Dockerfile`: Container configuration for deployment.
+## 構成
+- `model.py`: MNIST 用に調整された ResNet18 モデルの定義。
+- `train.py`: 60/20/20 のデータ分割を用いたトレーニングスクリプト。
+- `app.py`: 予測を提供するための FastAPI アプリケーション。
+- `templates/index.html`: 数字を記述するための Web インターフェース。
+- `Dockerfile`: デプロイ用のコンテナ設定。
 
-## How to Run
+## 実行方法
 
-### 1. Training (Local)
-To train the model and generate `model_weights.pth`:
+### 1. トレーニング (ローカル)
+モデルをトレーニングし、`model_weights.pth` を生成するには：
 ```bash
 pip install -r requirements.txt
 python train.py
 ```
 
-### 2. Running the FastAPI App (Local)
+### 2. FastAPI アプリの実行 (ローカル)
 ```bash
 python app.py
 ```
-Open `http://localhost:8080` in your browser.
+ブラウザで `http://localhost:8080` を開きます。
 
 ### 3. Docker
-Build the image:
+イメージのビルド：
 ```bash
 docker build -t mnist-service .
 ```
-Run the container:
+コンテナの実行：
 ```bash
 docker run -p 8080:8080 mnist-service
 ```
 
-### 4. Deploying to GCP (Cloud Run)
-1. Build and push the image to Google Artifact Registry:
+### 4. GCP (Cloud Run) へのデプロイ
+1. Google Artifact Registry にイメージをビルドしてプッシュします：
    ```bash
    gcloud builds submit --tag gcr.io/[PROJECT_ID]/mnist-service
    ```
-2. Deploy to Cloud Run:
+2. Cloud Run にデプロイします：
    ```bash
    gcloud run deploy mnist-service --image gcr.io/[PROJECT_ID]/mnist-service --platform managed --region us-central1 --allow-unauthenticated
    ```
