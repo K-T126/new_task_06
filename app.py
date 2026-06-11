@@ -1,4 +1,5 @@
 import io
+import os
 import torch
 from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.responses import HTMLResponse
@@ -13,17 +14,18 @@ templates = Jinja2Templates(directory="templates")
 # Load model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = MNISTResNet18()
-try:
-    model.load_state_dict(torch.load('model_weights.pth', map_location=device))
-except FileNotFoundError:
-    print("Warning: model_weights.pth not found. Please train the model first.")
+weights_path = 'model_weights.pth'
+if os.path.exists(weights_path):
+    model.load_state_dict(torch.load(weights_path, map_location=device))
+    print(f"Loaded model weights from {weights_path}")
+else:
+    print(f"Warning: {weights_path} not found. Please train the model first.")
 model.to(device)
 model.eval()
 
 # Transform
 transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.Grayscale(num_output_channels=1),
+    transforms.Resize((64, 64)),
     transforms.ToTensor(),
     transforms.Normalize((0.1307,), (0.3081,))
 ])
@@ -37,12 +39,16 @@ async def index(request: Request):
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     img_bytes = await file.read()
-    image = Image.open(io.BytesIO(img_bytes))
+    image = Image.open(io.BytesIO(img_bytes)).convert('L')
     
     tensor = transform(image).unsqueeze(0).to(device)
     
+    # Debug: Print tensor stats to console
+    print(f"Tensor stats - Mean: {tensor.mean():.4f}, Max: {tensor.max():.4f}, Min: {tensor.min():.4f}")
+    
     with torch.no_grad():
         outputs = model(tensor)
+        print(f"Logits: {outputs}")
         prediction = torch.argmax(outputs, dim=1).item()
         
     return {"prediction": prediction}
