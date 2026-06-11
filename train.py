@@ -3,7 +3,6 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms, datasets
 import pytorch_lightning as pl
 from model import MNISTResNet18
-import os
 
 def train():
     # Transforms
