@@ -1,6 +1,5 @@
-pytorch-lightning
 fastapi
 uvicorn
 python-multipart
 jinja2
-# Note: torch, torchvision, numpy, and Pillow are provided by the base image
+# torch and torchvision are installed separately to use the CPU-only versions

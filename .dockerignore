@@ -15,4 +15,4 @@ pip-delete-this-directory.txt
 .gitignore
 .vscode/
 .idea/
-model_weights.pth
+train.py

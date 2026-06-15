@@ -1,9 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pytorch_lightning as pl
 
-# Define BasicBlock for ResNet (from train.py)
+# Define BasicBlock for ResNet
 class BasicBlock(nn.Module):
     expansion = 1
 
@@ -28,8 +27,8 @@ class BasicBlock(nn.Module):
         out = F.relu(out)
         return out
 
-# Define MNISTResNet18 as a LightningModule (from train.py)
-class MNISTResNet18(pl.LightningModule):
+# Define MNISTResNet18 as a plain nn.Module
+class MNISTResNet18(nn.Module):
     def __init__(self, num_classes=10):
         super(MNISTResNet18, self).__init__()
         self.in_planes = 64
@@ -68,31 +67,3 @@ class MNISTResNet18(pl.LightningModule):
         out = torch.flatten(out, 1)
         out = self.linear(out)
         return out
-
-    def training_step(self, batch, batch_idx):
-        x, y = batch
-        logits = self(x)
-        loss = F.cross_entropy(logits, y)
-        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
-        return loss
-
-    def validation_step(self, batch, batch_idx):
-        x, y = batch
-        logits = self(x)
-        loss = F.cross_entropy(logits, y)
-        self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True)
-        return loss
-
-    def test_step(self, batch, batch_idx):
-        x, y = batch
-        logits = self(x)
-        loss = F.cross_entropy(logits, y)
-        preds = torch.argmax(logits, dim=1)
-        acc = (preds == y).float().mean()
-        self.log('test_loss', loss, on_step=False, on_epoch=True)
-        self.log('test_acc', acc, on_step=False, on_epoch=True)
-        return loss
-
-    def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        return optimizer
