@@ -16,3 +16,6 @@ pip-delete-this-directory.txt
 .vscode/
 .idea/
 train.py
+Dockerfile
+.dockerignore
+README.md

@@ -16,14 +16,16 @@ FROM base AS builder
 
 WORKDIR /build
 
-COPY requirements.txt .
-
-# Install dependencies into /install prefix to avoid permission issues
-# Using --prefix ensures all files are in one directory for easy copying
+# Install heavy dependencies first to leverage caching
 RUN --mount=type=cache,target=/root/.cache/pip \
     mkdir /install && \
     pip install --prefix=/install --extra-index-url https://download.pytorch.org/whl/cpu \
-    torch==2.0.1+cpu torchvision==0.15.2+cpu -r requirements.txt
+    torch==2.0.1+cpu torchvision==0.15.2+cpu
+
+# Install other dependencies
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --prefix=/install -r requirements.txt
 
 # ==========================================
 # 3. Final execution stage
@@ -33,11 +35,12 @@ FROM base AS inference
 WORKDIR /app
 
 # Copy the installed packages from builder to /usr/local
-# This makes them globally accessible to any user
 COPY --from=builder /install /usr/local
 
-# Copy application code
-COPY . .
+# Copy application files individually to maximize cache efficiency
+COPY model_weights.pth .
+COPY model.py app.py ./
+COPY templates/ ./templates/
 
 # Create and switch to non-root user
 RUN useradd -m appuser && chown -R appuser /app

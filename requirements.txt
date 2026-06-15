@@ -2,4 +2,5 @@ fastapi
 uvicorn
 python-multipart
 jinja2
-# torch and torchvision are installed separately to use the CPU-only versions
+Pillow
+numpy<2.0.0
